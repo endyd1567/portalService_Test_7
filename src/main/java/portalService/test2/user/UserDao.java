@@ -20,7 +20,7 @@ public class UserDao {
         Connection con = null;
         PreparedStatement psmt = null;
         ResultSet rs = null;
-        User user;
+        User user = null;
 
         try {
             con = dataSource.getConnection();
@@ -29,12 +29,13 @@ public class UserDao {
             psmt.setLong(1, id);
             rs = psmt.executeQuery();
 
-            rs.next();
+            if(rs.next()) {
+                user = new User();
+                user.setId(rs.getLong("id"));
+                user.setName(rs.getString("name"));
+                user.setPassword(rs.getString("password"));
+            }
 
-            user = new User();
-            user.setId(rs.getLong("id"));
-            user.setName(rs.getString("name"));
-            user.setPassword(rs.getString("password"));
         } finally {
             try {
                 rs.close();
@@ -78,6 +79,58 @@ public class UserDao {
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
+            try {
+                psmt.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            try {
+                con.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    public void update(User user) throws SQLException {
+        Connection con = null;
+        PreparedStatement psmt = null;
+
+        try {
+            con = dataSource.getConnection();
+            String sql = "update userinfo set name=? , password=? where id=? ";
+            psmt = con.prepareStatement(sql);
+            psmt.setString(1, user.getName());
+            psmt.setString(2, user.getPassword());
+            psmt.setLong(3,user.getId());
+            psmt.executeUpdate();
+
+        }finally {
+            try {
+                psmt.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            try {
+                con.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    public void delete(Long id) throws SQLException {
+        Connection con = null;
+        PreparedStatement psmt = null;
+
+        try {
+            con = dataSource.getConnection();
+            String sql = "delete from userinfo where id=? ";
+            psmt = con.prepareStatement(sql);
+            psmt.setLong(1, id);
+            psmt.executeUpdate();
+
+        }finally {
             try {
                 psmt.close();
             } catch (SQLException e) {

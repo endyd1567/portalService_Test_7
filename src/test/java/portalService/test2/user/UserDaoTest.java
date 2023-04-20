@@ -39,13 +39,7 @@ class UserDaoTest {
     @Test
     public void insert() throws SQLException {
 
-        String name = "hello";
-        String password = "2222";
-        User user = new User();
-        user.setName(name);
-        user.setPassword(password);
-
-        userDao.insert(user);
+        User user = insertUser();
 
         User insertedUser = userDao.findById(user.getId());
 
@@ -53,6 +47,43 @@ class UserDaoTest {
         assertThat(insertedUser.getId()).isGreaterThan(1l);
         assertThat(insertedUser.getName()).isEqualTo(user.getName());
         assertThat(insertedUser.getPassword()).isEqualTo(user.getPassword());
+    }
+
+    private static User insertUser() throws SQLException {
+        String name = "hello";
+        String password = "2222";
+        User user = new User();
+        user.setName(name);
+        user.setPassword(password);
+
+        userDao.insert(user);
+        return user;
+    }
+
+    @Test
+    public void update() throws SQLException {
+        User user = insertUser();
+        String updatedName = "updated_umdu";
+        String updatedPassword = "updated_1234";
+        user.setName(updatedName);
+        user.setPassword(updatedPassword);
+        userDao.update(user);
+
+        User updatedUser = userDao.findById(user.getId());
+
+        assertThat(updatedUser.getId()).isEqualTo(user.getId());
+        assertThat(updatedUser.getName()).isEqualTo(user.getName());
+        assertThat(updatedUser.getPassword()).isEqualTo(user.getPassword());
+    }
+
+    @Test
+    public void delete() throws SQLException {
+        User user = insertUser();
+        userDao.delete(user.getId());
+
+        User deletedUser = userDao.findById(user.getId());
+
+        assertThat(deletedUser).isNull();
     }
 
 }
