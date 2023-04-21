@@ -108,4 +108,40 @@ public class JdbcContext {
             }
         }
     }
+
+    public User find(String sql, Object[] params) throws SQLException {
+        StatementStrategy statementStrategy = con -> {
+            PreparedStatement psmt = con.prepareStatement(sql);
+            for (int i = 0; i < params.length; i++) {
+                psmt.setObject(i+1,params[i]);
+            }
+            return psmt;
+        };
+        User user = jdbcContextForFind(statementStrategy);
+        return user;
+    }
+
+    public void insert(User user, String sql, Object[] params) throws SQLException {
+        StatementStrategy statementStrategy = con -> {
+            PreparedStatement psmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            for (int i = 0; i < params.length; i++) {
+                psmt.setObject(i+1,params[i]);
+            }
+            return psmt;
+        };
+        jdbcContextForInsert(user,statementStrategy);
+    }
+
+    public void update(String sql, Object[] params) throws SQLException {
+        StatementStrategy statementStrategy = con -> {
+            PreparedStatement psmt = con.prepareStatement(sql);
+            for (int i = 0; i < params.length; i++) {
+                psmt.setObject(i+1,params[i]);
+            }
+            return psmt;
+        };
+        jdbcContextForUpdate(statementStrategy);
+    }
+
+
 }
